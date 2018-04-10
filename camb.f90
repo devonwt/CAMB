@@ -56,17 +56,6 @@
 
     end subroutine CAMB_GetTransfers
 
-    subroutine CAMB_InitCAMBdata(Dat)
-    type (CAMBdata) :: Dat
-
-    nullify(Dat%ClTransScal%Delta_p_l_k)
-    nullify(Dat%ClTransVec%Delta_p_l_k)
-    nullify(Dat%ClTransTens%Delta_p_l_k)
-    nullify(Dat%MTrans%sigma_8,Dat%MTrans%TransferData,Dat%MTrans%q_trans)
-
-    end subroutine CAMB_InitCAMBdata
-
-
     subroutine CAMB_FreeCAMBdata(Dat)
     type (CAMBdata) :: Dat
 

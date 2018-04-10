@@ -1216,8 +1216,8 @@
 
     Type LimberRec
         integer n1,n2 !corresponding time step array indices
-        real(dl), dimension(:), pointer :: k  => NULL()
-        real(dl), dimension(:), pointer :: Source  => NULL()
+        real(dl), dimension(:), allocatable :: k
+        real(dl), dimension(:), allocatable :: Source
     end Type LimberRec
 
     Type ClTransferData
@@ -1229,13 +1229,13 @@
         !- tensors: T and E and phi (for lensing), and T, E, B respectively
 
         type (TRanges) :: q
-        real(dl), dimension(:,:,:), pointer :: Delta_p_l_k => NULL()
+        real(dl), dimension(:,:,:), allocatable :: Delta_p_l_k
 
         !The L index of the lowest L to use for Limber
-        integer, dimension(:), pointer :: Limber_l_min => NULL()
+        integer, dimension(:), allocatable :: Limber_l_min
         !For each l, the set of k in each limber window
         !indices LimberWindow(SourceNum,l)
-        Type(LimberRec), dimension(:,:), pointer :: Limber_windows => NULL()
+        Type(LimberRec), dimension(:,:), allocatable :: Limber_windows
 
         !The maximum L needed for non-Limber
         integer max_index_nonlimber
@@ -1304,7 +1304,6 @@
     integer st
 
     deallocate(CTrans%Delta_p_l_k, STAT = st)
-    nullify(CTrans%Delta_p_l_k)
     call CTrans%q%Free()
     call Free_Limber(CTrans)
 
@@ -1312,22 +1311,12 @@
 
     subroutine Free_Limber(CTrans)
     Type(ClTransferData) :: CTrans
-    integer st,i,j
 
-    if (associated(CTrans%Limber_l_min)) then
-        do i=1, CTrans%NumSources
-            if (CTrans%Limber_l_min(i)/=0) then
-                do j=CTrans%Limber_l_min(i), CTrans%ls%l0
-                    deallocate(CTrans%Limber_windows(i, j)%k, STAT = st)
-                    deallocate(CTrans%Limber_windows(i, j)%Source, STAT = st)
-                end do
-            end if
-        end do
-        deallocate(CTrans%Limber_l_min, STAT = st)
+    if (allocated(CTrans%Limber_l_min)) then
+        deallocate(CTrans%Limber_l_min)
     end if
-    deallocate(CTrans%Limber_windows, STAT = st)
-    nullify(CTrans%Limber_l_min)
-    nullify(CTrans%Limber_windows)
+    if (allocated(CTrans%Limber_windows)) &
+        deallocate(CTrans%Limber_windows)
 
     end subroutine Free_Limber
 
@@ -2205,25 +2194,7 @@
     deallocate(PK_data%vdpower,stat=i)
     deallocate(PK_data%ddvdpower,stat=i)
 
-    call MatterPowerdata_Nullify(PK_data)
     end subroutine MatterPowerdata_Free
-
-    subroutine MatterPowerdata_Nullify(PK_data)
-    Type(MatterPowerData) :: PK_data
-
-    nullify(PK_data%log_kh)
-    nullify(PK_data%nonlin_ratio)
-    nullify(PK_data%redshifts)
-    !Sources
-    nullify(PK_data%log_k)
-    nullify(PK_data%nonlin_ratio_vv)
-    nullify(PK_data%nonlin_ratio_vd)
-    nullify(PK_data%vvpower)
-    nullify(PK_data%ddvvpower)
-    nullify(PK_data%vdpower)
-    nullify(PK_data%ddvdpower)
-
-    end subroutine MatterPowerdata_Nullify
 
     function MatterPowerData_k(PK,  kh, itf) result(outpower)
     !Get matter power spectrum at particular k/h by interpolation
@@ -2655,18 +2626,6 @@
 
     end subroutine Transfer_Allocate
 
-    subroutine Transfer_Nullify(Mtrans)
-    Type(MatterTransferData):: MTrans
-
-    Mtrans%num_q_trans = 0
-    nullify(MTrans%q_trans)
-    nullify(MTrans%TransferData)
-    nullify(MTrans%sigma_8)
-    nullify(MTrans%sigma2_vdelta_8)
-    nullify(MTrans%optical_depths)
-
-    end subroutine Transfer_Nullify
-
     subroutine Transfer_Free(MTrans)
     Type(MatterTransferData):: MTrans
     integer st
@@ -2848,7 +2807,6 @@
     integer ik
     integer z_ix,nz
 
-    call MatterPowerdata_Nullify(PK_cdm)
     nz = 1
     PK_data%num_k = MTrans%num_q_trans
     PK_Data%num_z = nz
@@ -2990,7 +2948,6 @@
             in =1
             lastl=0
 
-            call MatterPowerdata_Nullify(PK_data)
             call Transfer_Get21cmPowerData(MTrans, PK_data, in, itf)
 
             unit = open_file_header(FileNames(itf), 'L', Transfer_21cm_name_tags, 8)
@@ -3475,7 +3432,7 @@
 
     !Sources
     if (CP%WantTransfer) then
-        if (associated(MT%optical_depths)) deallocate(MT%optical_depths, stat = RW_i)
+        if (allocated(MT%optical_depths)) deallocate(MT%optical_depths)
         allocate(MT%optical_depths(CP%Transfer%num_redshifts))
         do RW_i = 1, CP%Transfer%num_redshifts
             if (CP%Transfer%Redshifts(RW_i) < 1e-3) then

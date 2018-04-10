@@ -5,32 +5,31 @@
     Type MatterTransferData
         !Computed data
         integer   ::  num_q_trans   !    number of steps in k for transfer calculation
-        real(dl), dimension (:), pointer :: q_trans => NULL()
-        real(dl), dimension (:,:), pointer ::  sigma_8 => NULL()
-        real(dl), dimension (:,:), pointer ::  sigma2_vdelta_8 => NULL() !growth from sigma_{v delta}
-        real, dimension(:,:,:), pointer :: TransferData => NULL()
+        real(dl), dimension (:), allocatable :: q_trans
+        real(dl), dimension (:,:), allocatable ::  sigma_8
+        real(dl), dimension (:,:), allocatable ::  sigma2_vdelta_8  !growth from sigma_{v delta}
+        real, dimension(:,:,:), allocatable :: TransferData
         !Sources
-        real(dl), dimension(:), pointer :: optical_depths => NULL()
+        real(dl), dimension(:), allocatable :: optical_depths
         !TransferData(entry,k_index,z_index) for entry=Tranfer_kh.. Transfer_tot
     end Type MatterTransferData
 
     Type MatterPowerData
         !everything is a function of k/h
         integer   ::  num_k, num_z
-        real(dl), dimension(:), pointer :: log_kh => NULL(), redshifts => NULL()
+        real(dl), dimension(:), allocatable :: log_kh, redshifts
         !matpower is log(P_k)
         real(dl), dimension(:,:), allocatable :: matpower, ddmat
         !if NonLinear, nonlin_ratio =  sqrt(P_nonlinear/P_linear)
         !function of k and redshift NonLinearScaling(k_index,z_index)
-        real(dl), dimension(:,:), pointer :: nonlin_ratio => NULL()
+        real(dl), dimension(:,:), allocatable :: nonlin_ratio
         !Sources
-        real(dl), dimension(:), pointer :: log_k => NULL()
-        real(dl), dimension(:,:), pointer :: vvpower => NULL(), ddvvpower => NULL()
-        real(dl), dimension(:,:), pointer :: vdpower => NULL(), ddvdpower => NULL()
+        real(dl), dimension(:), allocatable :: log_k
+        real(dl), dimension(:,:), allocatable :: vvpower, ddvvpower
+        real(dl), dimension(:,:), allocatable :: vdpower, ddvdpower
 
-        real(dl), dimension(:,:), pointer :: nonlin_ratio_vv => NULL()
-        real(dl), dimension(:,:), pointer :: nonlin_ratio_vd => NULL()
-
+        real(dl), dimension(:,:), allocatable :: nonlin_ratio_vv
+        real(dl), dimension(:,:), allocatable :: nonlin_ratio_vd
     end Type MatterPowerData
 
     type TCambComponent

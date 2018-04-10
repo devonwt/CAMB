@@ -43,7 +43,6 @@
     Type (CAMBdata), pointer :: pCAMBdata
 
     allocate(pCAMBdata)
-    call CAMB_InitCAMBdata(pCAMBdata)
     call CAMB_setDefParams(pCAMBdata%Params)
     handle = c_loc(pCAMBdata)
 
@@ -162,7 +161,7 @@
     else
         cData%q_size = 0
     end if
-    if (associated(data%Delta_p_l_k)) then
+    if (allocated(data%Delta_p_l_k)) then
         cData%delta_size = shape(Data%Delta_p_l_k)
         cData%delta_p_l_k = c_loc(Data%Delta_p_l_k)
     else
