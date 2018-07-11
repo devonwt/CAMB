@@ -58,7 +58,7 @@ ifeq ($(shell uname -s),Darwin)
 NONNATIVE = 1
 endif
 ifndef NONNATIVE
-FFLAGS+=-march=native
+#FFLAGS+=-march=native
 endif
 endif
 endif
